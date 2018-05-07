@@ -1,15 +1,20 @@
 {
   "name": "create-root-schema",
-  "version": "1.0.0-0",
+  "version": "1.0.0-1",
   "main": "dist/main.js",
   "module": "src/index.js",
   "repository": "https://github.com/gsandf/create-root-schema",
   "author": "GS&F Devs <mindreactor@gsandf.com> (https://gsandf.com/)",
   "license": "MIT",
-  "files": ["src/index.js", "dist/main.js"],
+  "files": [
+    "src/index.js",
+    "dist/main.js"
+  ],
   "ava": {
     "babel": "inherit",
-    "require": ["babel-register"]
+    "require": [
+      "babel-register"
+    ]
   },
   "babel": {
     "presets": [
@@ -23,7 +28,9 @@
       ],
       "stage-2"
     ],
-    "plugins": ["transform-export-extensions"]
+    "plugins": [
+      "transform-export-extensions"
+    ]
   },
   "eslintConfig": {
     "extends": "gsandf",
