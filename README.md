@@ -61,7 +61,7 @@ export const resolvers = {
 Then, import whatever files used into a single file and create the root schema:
 
 ```js
-import createRootSchema from 'createRootSchema';
+import createRootSchema from 'create-root-schema';
 
 import * as brand from './brand';
 import * as device from './device';
@@ -80,7 +80,7 @@ We use `apollo-server-express`, but any Node.js server should be similar:
 
 ```js
 // ./schemas/index.js
-import createRootSchema from 'createRootSchema';
+import createRootSchema from 'create-root-schema';
 
 import * as brand from './brand';
 import * as device from './device';
@@ -134,7 +134,7 @@ export const resolvers = {
 This is just a thin wrapper around [`makeExecutableSchema`](https://www.apollographql.com/docs/graphql-tools/generate-schema.html). Any options passed as the second argument will be forwarded directly to `makeExecutableSchema`.
 
 ```js
-import createRootSchema from 'createRootSchema';
+import createRootSchema from 'create-root-schema';
 
 // See `makeExecutableSchema` docs for more information
 createRootSchema([...schemas], { allowUndefinedInResolve: false });
