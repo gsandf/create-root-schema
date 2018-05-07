@@ -1,20 +1,15 @@
 {
   "name": "create-root-schema",
   "version": "1.0.0-1",
-  "main": "dist/main.js",
+  "main": "dist/index.js",
   "module": "src/index.js",
   "repository": "https://github.com/gsandf/create-root-schema",
   "author": "GS&F Devs <mindreactor@gsandf.com> (https://gsandf.com/)",
   "license": "MIT",
-  "files": [
-    "src/index.js",
-    "dist/main.js"
-  ],
+  "files": ["src/index.js", "dist/index.js"],
   "ava": {
     "babel": "inherit",
-    "require": [
-      "babel-register"
-    ]
+    "require": ["babel-register"]
   },
   "babel": {
     "presets": [
@@ -28,9 +23,7 @@
       ],
       "stage-2"
     ],
-    "plugins": [
-      "transform-export-extensions"
-    ]
+    "plugins": ["transform-export-extensions"]
   },
   "eslintConfig": {
     "extends": "gsandf",
@@ -53,7 +46,8 @@
     "lodash.merge": "^4.6.1"
   },
   "scripts": {
-    "build": "webpack --mode production --target node",
+    "build":
+      "webpack --mode production --target node --output-library create-root-schema --output-library-target umd -o ./dist/index.js",
     "lint": "eslint src",
     "prepublish": "yarn build",
     "test": "ava"
