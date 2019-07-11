@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "graphql-tools": "^4.0.4",
-    "lodash.merge": "^4.6.1"
+    "lodash.merge": "^4.6.2"
   },
   "scripts": {
     "build": "babel --only src/index.js -d dist src",
