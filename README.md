@@ -9,35 +9,41 @@ files, you can break the service up in a way that makes sense for your project.
 We believe this system allows you to make very few boilerplate changes to extend
 your service while also being very explicit—we don't like unnecessary magic.
 
-ℹ️ This is just a very thin wrapper extending/replacing [`makeExecutableSchema`](https://www.apollographql.com/docs/graphql-tools/generate-schema.html).
+ℹ️ This is just a very thin wrapper extending/replacing [`makeExecutableSchema`](https://www.apollographql.com/docs/graphql-tools/generate-schema/).
 See [`graphql-tools`](https://www.apollographql.com/docs/graphql-tools/) for more documentation.
 
 ## Usage
 
-First, all your schema files can export `type` and `resolvers` (both are optional).
+All your schema files can export `typeDefs`, `resolvers`, and
+`schemaDirectives`. All are optional.
+
 To add functionality, each file may:
 
-* extend one of the root types (i.e. `Query` and/or `Mutation`)
-* extend another custom type
-* add resolvers to one of the root types
-* extend resolvers of a custom type
-* add a custom scalar/enum. See [`graphql-tools` docs](https://www.apollographql.com/docs/graphql-tools/scalars.html) for more info or [`timestamp.js`](./src/testHelpers/schemas/timestamp.js) for an example.
+- Extend a root type: `Query` and/or `Mutation`
+- Add or extend custom typesD
+- Add resolvers for the types
+- Add a custom scalar/enum
+  - [Example usage](./src/testHelpers/schemas/timestamp.js)
+  - Read the [`graphql-tools`
+    documentation](https://www.apollographql.com/docs/graphql-tools/scalars/)
+    more more information
+- Add a custom schema directive
+  - [Example usage](./src/testHelpers/schemas/upperCase.js)
+  - Read the [`graphql-tools`
+    documentation](https://www.apollographql.com/docs/apollo-server/schema/directives/)
+    more more information
 
 ```js
 // Example Users schema file
-import users from './users';
+import { fetchUser, fetchUsers } from './users';
 
-export const type = /* GraphQL */ `
+export const typeDefs = /* GraphQL */ `
   type User {
     lastSeen: Timestamp
     name: String
   }
 
-  # Just extend the root types to expose logic...
-  extend type Mutation {
-    seen (id: ID!): User
-  }
-
+  # Extend the root types to expose logic...
   extend type Query {
     user(id: ID!): User
     users: [User]
@@ -45,99 +51,94 @@ export const type = /* GraphQL */ `
 `;
 
 export const resolvers = {
-  Mutation: {
-    seen: (_, { id }) => {
-      const user = userList.findById(id);
-      user.lastSeen = Date.now();
-      return user;
-    }
-  },
   Query: {
-    user: (_, { id }) => users.findById(id)
+    user: (_, { id }) => fetchUser(id),
+    users: () => fetchUsers()
   }
 };
 ```
 
-Then, import whatever files used into a single file and create the root schema:
+Then, import the schema parts into a single file and create a root schema:
 
 ```js
-import createRootSchema from 'create-root-schema';
+import {
+  combineSchemaDefinitions,
+  makeExecutableSchema
+} from 'create-root-schema';
 
-import * as brand from './brand';
 import * as device from './device';
 import * as notification from './notification';
 import * as user from './user';
 
-export default createRootSchema([brand, device, notification, user]);
+// NOTE: Choose one of these options…
+
+// - option 1: get the combined schema:
+export default combineSchemaDefinitions([device, notification, user]);
+
+// - option 2: both combine the schema and convert to an executable schema:
+export default makeExecutableSchema([device, notification, user]);
 ```
 
-As an alternative, you may opt to use a package that requires all matching files.
-That should work fine; we've just opted to be explicit here.
-
-### Usage with a Server
-
-We use `apollo-server-express`, but any Node.js server should be similar:
+### Usage with [`apollo-server-express` v2](https://github.com/apollographql/apollo-server)
 
 ```js
 // ./schemas/index.js
-import createRootSchema from 'create-root-schema';
+import { combineSchemaDefinitions } from 'create-root-schema';
 
-import * as brand from './brand';
 import * as device from './device';
 import * as notification from './notification';
 import * as user from './user';
 
-export default createRootSchema([brand, device, notification, user]);
+export default combineSchemaDefinitions([brand, device, notification, user]);
 ```
 
 ```js
 // ./index.js
-import { graphqlExpress } from 'apollo-server-express';
+import { ApolloServer, gql } from 'apollo-server-express';
+import express from 'express';
 import schema from './schemas';
 
-app.use('/graphql', graphqlExpress(req => ({ schema })));
+const app = express();
+
+const server = new ApolloServer(schema);
+
+server.applyMiddleware({ app });
+
+app.listen({ port: 4000 }, () =>
+  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
+);
 ```
 
-### Separate Files
+### Usage with [`graphql-yoga`](https://github.com/prisma-labs/graphql-yoga)
 
-Sometimes types & resolvers make sense broken out into more files. You can do
-this however you like. Here's one possibility:
+```js
+// ./schemas/index.js
+import { combineSchemaDefinitions } from 'create-root-schema';
 
-```graphql
-# ./schemas/product/type.graphql
+import * as device from './device';
+import * as notification from './notification';
+import * as user from './user';
 
-type Product {
-  id: ID!
-  name: String
-  stock: Int
-  #
-  # ...so many fields
-  #
-}
+export default combineSchemaDefinitions([brand, device, notification, user]);
 ```
 
 ```js
-// ./schemas/product/index.js
+import { GraphQLServer } from 'graphql-yoga';
+import schema from './schemas';
 
-// using something like `babel-plugin-inline-import`
-import userType from './type.graphql';
-
-export const type = userType;
-
-export const resolvers = {
-  // ...
-};
+const server = new GraphQLServer(schema);
+server.start(() => console.log('Server is running on localhost:4000'));
 ```
 
 ### Extra Options
 
-This is just a thin wrapper around [`makeExecutableSchema`](https://www.apollographql.com/docs/graphql-tools/generate-schema.html). Any options passed as the second argument will be forwarded directly to `makeExecutableSchema`.
+This is just a thin wrapper around [`makeExecutableSchema`](https://www.apollographql.com/docs/graphql-tools/generate-schema/). Any options passed as the second argument will be forwarded directly to `makeExecutableSchema`.
 
 ```js
-import createRootSchema from 'create-root-schema';
+import { makeExecutableSchema } from 'create-root-schema';
 
-// See `makeExecutableSchema` docs for more information
-createRootSchema([...schemas], { allowUndefinedInResolve: false });
+// See `graphql-tools` docs for more information
+makeExecutableSchema([...schemas], { allowUndefinedInResolve: false });
 ```
 
 ## Install
@@ -150,10 +151,6 @@ yarn add create-root-schema
 # ...or, if using `npm`
 npm install create-root-schema
 ```
-
-## See Also
-
-* [`okgrow/merge-graphql-schemas`](https://github.com/okgrow/merge-graphql-schemas) - A utility library to facilitate merging of modularized GraphQL schemas and resolver objects.
 
 ## License
 
