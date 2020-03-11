@@ -2,7 +2,7 @@ import test from 'ava';
 import { graphql } from 'graphql';
 import { combineSchemaDefinitions, makeExecutableSchema } from '.';
 import * as timestampSchema from './testHelpers/schemas/timestamp';
-import * as upperCaseDirective from './testHelpers/schemas/uppercase';
+import * as upperCaseDirective from './testHelpers/schemas/upperCase';
 import * as userSchema from './testHelpers/schemas/user';
 import * as userUpperCaseExtension from './testHelpers/schemas/user-upperCase-extension';
 
