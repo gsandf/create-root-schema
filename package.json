@@ -43,10 +43,10 @@
   },
   "scripts": {
     "build": "rm -rf dist && tsc",
+    "format-check": "amper-scripts format-check",
     "format": "amper-scripts format-write",
-    "lint": "amper-scripts lint",
+    "lint": "amper-scripts lint --config ./.eslintrc.js src",
     "prepublish": "yarn build",
-    "test": "ava",
-    "validate": "amper-scripts validate"
+    "test": "ava"
   }
 }
