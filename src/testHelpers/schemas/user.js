@@ -1,11 +1,11 @@
-export const type = /* GraphQL */ `
+export const typeDefs = /* GraphQL */ `
   type User {
     lastSeen: Timestamp
     name: String
   }
 
   extend type Mutation {
-    seen (id: ID!): User
+    seen(id: ID!): User
   }
 
   extend type Query {

@@ -1,12 +1,12 @@
 import { GraphQLScalarType, Kind } from 'graphql';
 
-export const type = /* GraphQL */ `
+export const typeDefs = /* GraphQL */ `
   scalar Timestamp
 `;
 
 const coerceToDate = value => {
   const dateValue = new Date(
-    /\d{4}-\d{2}-\d{2}/.test(value) ? value : parseInt(value, 10)
+    /\d{4}-\d{2}-\d{2}/.test(value) ? value : parseInt(value)
   );
 
   if (Number.isNaN(dateValue.getTime())) {
