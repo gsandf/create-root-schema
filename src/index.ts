@@ -9,19 +9,15 @@ import { merge } from 'unchanged';
 type SchemaDirective = {
   [name: string]: typeof SchemaDirectiveVisitor;
 };
-type TypeDef = string;
-
-export interface SchemaPart {
-  resolvers?: IResolvers;
-  schemaDirectives?: SchemaDirective;
-  typeDefs?: TypeDef;
-}
+type TypeDef = string | string[];
 
 export interface SchemaDefinition {
-  resolvers?: IResolvers;
-  schemaDirectives?: SchemaDirective;
-  typeDefs: TypeDef[];
+  resolvers: IResolvers;
+  schemaDirectives: SchemaDirective;
+  typeDefs: TypeDef;
 }
+
+export type SchemaPart = Partial<SchemaDefinition>;
 
 function extendIfExists<T>(obj: T, part: T) {
   return part ? merge(null, obj, part) : obj;
@@ -41,7 +37,7 @@ function mergeSchemaPart(
     ),
     // append type definitions to existing type definitions
     typeDefs: part.typeDefs
-      ? schema.typeDefs.concat(part.typeDefs)
+      ? schema.typeDefs.concat(part.typeDefs as string)
       : schema.typeDefs
   };
 }
@@ -64,7 +60,7 @@ export function combineSchemaDefinitions(
     resolvers: {},
     schemaDirectives: {},
     typeDefs: [rootTypes]
-  });
+  }) as SchemaDefinition;
 }
 
 export function makeExecutableSchema(
