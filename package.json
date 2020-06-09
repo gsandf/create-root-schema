@@ -1,6 +1,6 @@
 {
   "name": "create-root-schema",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "main": "dist/index.js",
   "repository": "https://github.com/gsandf/create-root-schema",
   "author": "GS&F Devs <mindreactor@gsandf.com> (https://gsandf.com/)",
